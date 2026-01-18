@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Добавить новый рецепт</h1>
+
+    <form method="POST" class="recipe-form">
+        <div class="form-group">
+            <label for="title">Название блюда *</label>
+            <input type="text" id="title" name="title" required placeholder="Например: Паста Карбонара">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="cuisine">Кухня *</label>
+                <select id="cuisine" name="cuisine" required>
+                    <option value="">Выберите кухню</option>
+                    <option value="Итальянская">Итальянская</option>
+                    <option value="Французская">Французская</option>
+                    <option value="Русская">Русская</option>
+                    <option value="Японская">Японская</option>
+                    <option value="Китайская">Китайская</option>
+                    <option value="Мексиканская">Мексиканская</option>
+                    <option value="Индийская">Индийская</option>
+                    <option value="Американская">Американская</option>
+                    <option value="Другая">Другая</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="prep_time">Время приготовления *</label>
+                <input type="text" id="prep_time" name="prep_time" required placeholder="Например: 30 минут">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Описание блюда *</label>
+            <textarea id="description" name="description" rows="3" required
+                      placeholder="Краткое описание вашего блюда..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="ingredients">Ингредиенты *</label>
+            <textarea id="ingredients" name="ingredients" rows="6" required
+                      placeholder="Каждый ингредиент с новой строки. Например:
+- Спагетти - 200г
+- Бекон - 100г
+- Сливки 20% - 200мл"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="instructions">Инструкция приготовления *</label>
+            <textarea id="instructions" name="instructions" rows="10" required
+                      placeholder="Пошаговая инструкция. Каждый шаг с новой строки."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Опубликовать рецепт
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Редактировать рецепт</h1>
+
+    <form method="POST" class="recipe-form">
+        <div class="form-group">
+            <label for="title">Название блюда *</label>
+            <input type="text" id="title" name="title" required
+                   value="{{ recipe.title }}">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="cuisine">Кухня *</label>
+                <select id="cuisine" name="cuisine" required>
+                    <option value="">Выберите кухню</option>
+                    <option value="Итальянская" {% if recipe.cuisine == "Итальянская" %}selected{% endif %}>Итальянская</option>
+                    <option value="Французская" {% if recipe.cuisine == "Французская" %}selected{% endif %}>Французская</option>
+                    <option value="Русская" {% if recipe.cuisine == "Русская" %}selected{% endif %}>Русская</option>
+                    <option value="Японская" {% if recipe.cuisine == "Японская" %}selected{% endif %}>Японская</option>
+                    <option value="Китайская" {% if recipe.cuisine == "Китайская" %}selected{% endif %}>Китайская</option>
+                    <option value="Мексиканская" {% if recipe.cuisine == "Мексиканская" %}selected{% endif %}>Мексиканская</option>
+                    <option value="Индийская" {% if recipe.cuisine == "Индийская" %}selected{% endif %}>Индийская</option>
+                    <option value="Американская" {% if recipe.cuisine == "Американская" %}selected{% endif %}>Американская</option>
+                    <option value="Другая" {% if recipe.cuisine == "Другая" %}selected{% endif %}>Другая</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="prep_time">Время приготовления *</label>
+                <input type="text" id="prep_time" name="prep_time" required
+                       value="{{ recipe.prep_time }}" placeholder="Например: 30 минут">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Описание блюда *</label>
+            <textarea id="description" name="description" rows="3" required
+                      placeholder="Краткое описание вашего блюда...">{{ recipe.description }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="ingredients">Ингредиенты *</label>
+            <textarea id="ingredients" name="ingredients" rows="6" required
+                      placeholder="Каждый ингредиент с новой строки">{{ recipe.ingredients }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="instructions">Инструкция приготовления *</label>
+            <textarea id="instructions" name="instructions" rows="10" required>{{ recipe.instructions }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Сохранить изменения
+            </button>
+            <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

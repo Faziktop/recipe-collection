@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="recipe-detail">
+    <a href="{{ url_for('index') }}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Назад к рецептам
+    </a>
+
+    <div class="recipe-header">
+        <h1>{{ recipe.title }}</h1>
+        <div class="recipe-meta">
+            <span class="cuisine">{{ recipe.cuisine }}</span>
+            <span><i class="far fa-clock"></i> {{ recipe.prep_time }}</span>
+            <span><i class="fas fa-user"></i> {{ recipe.author.username }}</span>
+            <span><i class="far fa-calendar"></i> {{ recipe.created_at.strftime('%d.%m.%Y') }}</span>
+            {% if recipe.updated_at != recipe.created_at %}
+                <span><i class="fas fa-edit"></i> Обновлен: {{ recipe.updated_at.strftime('%d.%m.%Y') }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if current_user.is_authenticated and (current_user.id == recipe.user_id or current_user.is_admin) %}
+    <div class="recipe-actions-detail">
+        <a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}" class="btn btn-edit">
+            <i class="fas fa-edit"></i> Редактировать рецепт
+        </a>
+        <form action="{{ url_for('delete_recipe', recipe_id=recipe.id) }}" method="POST" class="delete-form">
+            <button type="submit" class="btn btn-delete"
+                    onclick="return confirm('Удалить рецепт «{{ recipe.title }}»?')">
+                <i class="fas fa-trash"></i> Удалить рецепт
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="recipe-description">
+        <h2>Описание</h2>
+        <p>{{ recipe.description }}</p>
+    </div>
+
+    <div class="recipe-content">
+        <div class="ingredients">
+            <h2><i class="fas fa-shopping-basket"></i> Ингредиенты</h2>
+            <ul>
+                {% for ingredient in ingredients_list %}
+                    {% if ingredient.strip() %}
+                        <li>{{ ingredient }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="instructions">
+            <h2><i class="fas fa-list-ol"></i> Инструкция приготовления</h2>
+            <div class="steps">
+                {{ recipe.instructions|replace('\n', '<br>')|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
