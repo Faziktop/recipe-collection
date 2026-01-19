@@ -105,7 +105,7 @@ recipe-collection/
 ├── static/                   Статические файлы
 │   ├── css/
 │   │   └── style.css        Основные стили
-│   └── images/              Изображения (опционально)
+│   └── uploads/             Изображения
 └── templates/               HTML шаблоны
     ├── base.html            Базовый шаблон
     ├── index.html           Главная страница
