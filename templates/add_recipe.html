@@ -4,7 +4,7 @@
 <div class="form-container">
     <h1>Добавить новый рецепт</h1>
 
-    <form method="POST" class="recipe-form">
+    <form method="POST" class="recipe-form" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">Название блюда *</label>
             <input type="text" id="title" name="title" required placeholder="Например: Паста Карбонара">
@@ -54,6 +54,19 @@
                       placeholder="Пошаговая инструкция. Каждый шаг с новой строки."></textarea>
         </div>
 
+        <!-- Блок загрузки изображений -->
+        <div class="form-group">
+            <label>Фотографии блюда (до 5 файлов)</label>
+            <div class="file-upload" onclick="document.getElementById('images').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Нажмите для загрузки фотографий</p>
+                <p class="text-muted">Поддерживаемые форматы: JPG, PNG, GIF, WebP</p>
+                <input type="file" id="images" name="images" class="file-input"
+                       accept="image/*" multiple onchange="previewImages(event)">
+            </div>
+            <div id="image-preview" class="preview-images"></div>
+        </div>
+
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save"></i> Опубликовать рецепт
@@ -62,4 +75,55 @@
         </div>
     </form>
 </div>
+
+<script>
+function previewImages(event) {
+    const preview = document.getElementById('image-preview');
+    preview.innerHTML = '';
+
+    const files = event.target.files;
+    const maxFiles = 5;
+
+    if (files.length > maxFiles) {
+        alert(`Можно загрузить не более ${maxFiles} изображений`);
+        event.target.value = '';
+        return;
+    }
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.className = 'preview-image';
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-image';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.onclick = function() {
+                div.remove();
+                // Удаляем файл из input
+                const dt = new DataTransfer();
+                const input = document.getElementById('images');
+                for (let j = 0; j < input.files.length; j++) {
+                    if (j !== i) {
+                        dt.items.add(input.files[j]);
+                    }
+                }
+                input.files = dt.files;
+            };
+
+            div.appendChild(img);
+            div.appendChild(removeBtn);
+            preview.appendChild(div);
+        }
+
+        reader.readAsDataURL(file);
+    }
+}
+</script>
 {% endblock %}
