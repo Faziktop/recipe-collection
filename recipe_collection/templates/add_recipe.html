@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Добавить новый рецепт</h1>
+
+    <form method="POST" class="recipe-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">Название блюда *</label>
+            <input type="text" id="title" name="title" required placeholder="Например: Паста Карбонара">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="cuisine">Кухня *</label>
+                <select id="cuisine" name="cuisine" required>
+                    <option value="">Выберите кухню</option>
+                    <option value="Итальянская">Итальянская</option>
+                    <option value="Французская">Французская</option>
+                    <option value="Русская">Русская</option>
+                    <option value="Японская">Японская</option>
+                    <option value="Китайская">Китайская</option>
+                    <option value="Мексиканская">Мексиканская</option>
+                    <option value="Индийская">Индийская</option>
+                    <option value="Американская">Американская</option>
+                    <option value="Другая">Другая</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="prep_time">Время приготовления *</label>
+                <input type="text" id="prep_time" name="prep_time" required placeholder="Например: 30 минут">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Описание блюда *</label>
+            <textarea id="description" name="description" rows="3" required
+                      placeholder="Краткое описание вашего блюда..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="ingredients">Ингредиенты *</label>
+            <textarea id="ingredients" name="ingredients" rows="6" required
+                      placeholder="Каждый ингредиент с новой строки. Например:
+- Спагетти - 200г
+- Бекон - 100г
+- Сливки 20% - 200мл"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="instructions">Инструкция приготовления *</label>
+            <textarea id="instructions" name="instructions" rows="10" required
+                      placeholder="Пошаговая инструкция. Каждый шаг с новой строки."></textarea>
+        </div>
+
+        <!-- Блок загрузки изображений -->
+        <div class="form-group">
+            <label>Фотографии блюда (до 5 файлов)</label>
+            <div class="file-upload" onclick="document.getElementById('images').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Нажмите для загрузки фотографий</p>
+                <p class="text-muted">Поддерживаемые форматы: JPG, PNG, GIF, WebP</p>
+                <input type="file" id="images" name="images" class="file-input"
+                       accept="image/*" multiple onchange="previewImages(event)">
+            </div>
+            <div id="image-preview" class="preview-images"></div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Опубликовать рецепт
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function previewImages(event) {
+    const preview = document.getElementById('image-preview');
+    preview.innerHTML = '';
+
+    const files = event.target.files;
+    const maxFiles = 5;
+
+    if (files.length > maxFiles) {
+        alert(`Можно загрузить не более ${maxFiles} изображений`);
+        event.target.value = '';
+        return;
+    }
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.className = 'preview-image';
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-image';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.onclick = function() {
+                div.remove();
+                // Удаляем файл из input
+                const dt = new DataTransfer();
+                const input = document.getElementById('images');
+                for (let j = 0; j < input.files.length; j++) {
+                    if (j !== i) {
+                        dt.items.add(input.files[j]);
+                    }
+                }
+                input.files = dt.files;
+            };
+
+            div.appendChild(img);
+            div.appendChild(removeBtn);
+            preview.appendChild(div);
+        }
+
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+{% endblock %}

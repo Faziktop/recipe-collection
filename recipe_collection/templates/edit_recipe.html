@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Редактировать рецепт</h1>
+
+    <form method="POST" class="recipe-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">Название блюда *</label>
+            <input type="text" id="title" name="title" required
+                   value="{{ recipe.title }}">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="cuisine">Кухня *</label>
+                <select id="cuisine" name="cuisine" required>
+                    <option value="">Выберите кухню</option>
+                    <option value="Итальянская" {% if recipe.cuisine == "Итальянская" %}selected{% endif %}>Итальянская</option>
+                    <option value="Французская" {% if recipe.cuisine == "Французская" %}selected{% endif %}>Французская</option>
+                    <option value="Русская" {% if recipe.cuisine == "Русская" %}selected{% endif %}>Русская</option>
+                    <option value="Японская" {% if recipe.cuisine == "Японская" %}selected{% endif %}>Японская</option>
+                    <option value="Китайская" {% if recipe.cuisine == "Китайская" %}selected{% endif %}>Китайская</option>
+                    <option value="Мексиканская" {% if recipe.cuisine == "Мексиканская" %}selected{% endif %}>Мексиканская</option>
+                    <option value="Индийская" {% if recipe.cuisine == "Индийская" %}selected{% endif %}>Индийская</option>
+                    <option value="Американская" {% if recipe.cuisine == "Американская" %}selected{% endif %}>Американская</option>
+                    <option value="Другая" {% if recipe.cuisine == "Другая" %}selected{% endif %}>Другая</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="prep_time">Время приготовления *</label>
+                <input type="text" id="prep_time" name="prep_time" required
+                       value="{{ recipe.prep_time }}" placeholder="Например: 30 минут">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Описание блюда *</label>
+            <textarea id="description" name="description" rows="3" required
+                      placeholder="Краткое описание вашего блюда...">{{ recipe.description }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="ingredients">Ингредиенты *</label>
+            <textarea id="ingredients" name="ingredients" rows="6" required
+                      placeholder="Каждый ингредиент с новой строки">{{ recipe.ingredients }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="instructions">Инструкция приготовления *</label>
+            <textarea id="instructions" name="instructions" rows="10" required>{{ recipe.instructions }}</textarea>
+        </div>
+
+        <!-- Существующие изображения -->
+        {% if images %}
+        <div class="form-group">
+            <label>Текущие фотографии</label>
+            <div class="preview-images">
+                {% for image in images %}
+                <div class="preview-image">
+                    <img src="{{ url_for('uploaded_file', filename=image) }}"
+                         alt="Фото {{ loop.index }}">
+                    <button type="button" class="remove-image"
+                            onclick="if(confirm('Удалить это изображение?')) {
+                                fetch('{{ url_for('delete_recipe_image', recipe_id=recipe.id, filename=image) }}', {
+                                    method: 'POST',
+                                    headers: {'X-Requested-With': 'XMLHttpRequest'}
+                                }).then(() => location.reload());
+                            }">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Загрузка новых изображений -->
+        <div class="form-group">
+            <label>Добавить новые фотографии (до 5 файлов)</label>
+            <div class="file-upload" onclick="document.getElementById('new-images').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Нажмите для загрузки дополнительных фотографий</p>
+                <p class="text-muted">Поддерживаемые форматы: JPG, PNG, GIF, WebP</p>
+                <input type="file" id="new-images" name="images" class="file-input"
+                       accept="image/*" multiple onchange="previewNewImages(event)">
+            </div>
+            <div id="new-image-preview" class="preview-images"></div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Сохранить изменения
+            </button>
+            <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function previewNewImages(event) {
+    const preview = document.getElementById('new-image-preview');
+
+    const files = event.target.files;
+    const maxFiles = 5;
+
+    if (files.length > maxFiles) {
+        alert(`Можно загрузить не более ${maxFiles} изображений`);
+        event.target.value = '';
+        return;
+    }
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.className = 'preview-image';
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-image';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.onclick = function() {
+                div.remove();
+                // Удаляем файл из input
+                const dt = new DataTransfer();
+                const input = document.getElementById('new-images');
+                for (let j = 0; j < input.files.length; j++) {
+                    if (j !== i) {
+                        dt.items.add(input.files[j]);
+                    }
+                }
+                input.files = dt.files;
+            };
+
+            div.appendChild(img);
+            div.appendChild(removeBtn);
+            preview.appendChild(div);
+        }
+
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+{% endblock %}

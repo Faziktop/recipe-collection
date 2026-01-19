@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <h1>Коллекция рецептов</h1>
+        <p>Найдите вдохновение для вашей следующей трапезы</p>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('add_recipe') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Добавить рецепт
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="recipes-container">
+    {% if my_recipes %}
+        <h2 class="section-title">Мои рецепты</h2>
+    {% else %}
+        <div class="search-bar">
+            <input type="text" placeholder="Поиск рецептов..." id="searchInput">
+            <button onclick="searchRecipes()"><i class="fas fa-search"></i></button>
+        </div>
+    {% endif %}
+
+    <div class="recipes-grid">
+        {% for recipe in recipes %}
+        <div class="recipe-card">
+            <div class="recipe-image-container">
+                {% if recipe.get_main_image() %}
+                <img src="{{ url_for('uploaded_file', filename=recipe.get_main_image()) }}"
+                     alt="{{ recipe.title }}" class="recipe-image">
+                {% else %}
+                <div class="no-image">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="recipe-content">
+                <div class="recipe-header">
+                    <h3>{{ recipe.title }}</h3>
+                    <span class="cuisine-badge">{{ recipe.cuisine }}</span>
+                </div>
+
+                <div class="recipe-meta">
+                    <span><i class="far fa-clock"></i> {{ recipe.prep_time }}</span>
+                    <span><i class="fas fa-user"></i> {{ recipe.author.username }}</span>
+                    {% if recipe.updated_at != recipe.created_at %}
+                        <span><i class="fas fa-edit"></i> Обновлен</span>
+                    {% endif %}
+                </div>
+
+                <p class="recipe-description">
+                    {{ recipe.description[:120] }}{% if recipe.description|length > 120 %}...{% endif %}
+                </p>
+
+                <div class="recipe-actions">
+                    <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="btn btn-view">
+                        <i class="fas fa-eye"></i> Посмотреть
+                    </a>
+
+                    {% if current_user.is_authenticated and (current_user.id == recipe.user_id or current_user.is_admin) %}
+                        <a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}" class="btn btn-edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="{{ url_for('delete_recipe', recipe_id=recipe.id) }}" method="POST" class="delete-form">
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('Удалить рецепт «{{ recipe.title }}»?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="no-recipes">
+            <i class="fas fa-book-open"></i>
+            <h3>Пока нет рецептов</h3>
+            <p>{% if my_recipes %}У вас пока нет рецептов. Добавьте первый!{% else %}Будьте первым, кто добавит рецепт!{% endif %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function searchRecipes() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const recipeCards = document.querySelectorAll('.recipe-card');
+
+    recipeCards.forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        const description = card.querySelector('.recipe-description').textContent.toLowerCase();
+        const cuisine = card.querySelector('.cuisine-badge').textContent.toLowerCase();
+
+        if (title.includes(searchTerm) || description.includes(searchTerm) || cuisine.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}
