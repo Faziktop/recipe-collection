@@ -263,7 +263,7 @@ pytest tests/
    - Или загрузите файлы через веб-интерфейс
 3. Создайте виртуальное окружение:
 ```bash
-mkvirtualenv --python=/usr/bin/python3.10 venv
+mkvirtualenv --python=/usr/bin/python3.12 venv
 workon venv
 pip install -r requirements.txt
 ```
